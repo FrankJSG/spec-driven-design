@@ -1,0 +1,261 @@
+---
+spec_id: [FLOW-L3-NNN]
+spec_type: delivery
+layer: L3
+version: 0.1.0
+status: DRAFT
+owner: [handle]
+contributors: []
+created: [ISO 8601]
+last_reviewed: null
+reviewed_by: []
+next_review: null
+inherits_from:
+  - spec_id: [COMP-L2-NNN]
+    version: [version]
+    layer: L2
+  - spec_id: [COMP-L2-NNN]
+    version: [version]
+    layer: L2
+---
+
+# [Screen / Flow Name] — Delivery Spec
+
+## 1. Intent
+
+[One to two sentences. What is this screen or flow for? What user or business problem does it solve? State the measurable goal if one exists.]
+
+---
+
+## 2. User Context
+
+**User type:** [role, authentication state, plan tier, data state at point of entry]
+
+**Entry points:**
+- [How user arrives — from which screen, via which action, from which notification]
+- [Additional entry point if applicable]
+
+**Prior knowledge:** [What this user is expected to already know when they arrive here]
+
+**User goal:** [What the user is trying to accomplish — their internal job to be done]
+
+**Anxiety / friction points:** [Known hesitations, fears, or blockers for this user at this moment in the product]
+
+---
+
+## 3. Components Used
+
+[Complete list of L2 specs this delivery uses. Reference by spec_id and version. Do not describe component behavior here — it lives in the L2 spec.]
+
+| Component | Variants Used | Spec ID | Version |
+|-----------|--------------|---------|---------|
+| [Component name] | [variant list] | [COMP-L2-NNN] | [x.x.x] |
+| [Component name] | [variant list] | [COMP-L2-NNN] | [x.x.x] |
+| [Component name] | [variant list] | [COMP-L2-NNN] | [x.x.x] |
+
+All specs listed must be ACTIVE at the time this L3 is reviewed.
+
+---
+
+## 4. Flow Logic
+
+[Complete logical sequence of the user flow. Number every screen and state. Show all branching paths explicitly. This document is the AI agent's instruction set.]
+
+### Step 1: [Screen / State name]
+
+**Displayed:**
+- [What appears on screen]
+- [What data is shown, if any]
+
+**User can:**
+- [Available action 1] → Step [N]
+- [Available action 2] → Step [N]
+
+**System behavior:**
+- [Any background process triggered at this step]
+
+---
+
+### Step 2: [Screen / State name]
+
+**Displayed:**
+- [What appears on screen]
+
+**User can:**
+- [Action] → Step [N] (happy path)
+- [Action] → Step [N] (error path)
+- [Action] → Step [N] (alternative path)
+
+---
+
+### Step N: [Final / Success state]
+
+**Displayed:**
+- [Confirmation, success message, next-step prompt]
+
+**System behavior:**
+- [What the system does after completion — data written, emails sent, state changes]
+
+---
+
+## 5. Edge Cases
+
+[Explicit handling for every non-happy-path scenario. An unhandled edge case in this section is a production gap.]
+
+### Edge Case: [Name, e.g., Network timeout during form submission]
+
+**Trigger:** [What causes this edge case to occur]
+**Screen / state at trigger:** Step [N]
+**Handling:** [Exactly what the UI does — which component enters which state]
+**Component behavior:** [Which L2 state is invoked, e.g., Button → Loading → Error state]
+**Recovery path:** [How the user recovers from this state]
+
+---
+
+### Edge Case: [Name, e.g., Validation failure — required field empty]
+
+**Trigger:**
+**Screen / state at trigger:**
+**Handling:**
+**Component behavior:**
+**Recovery path:**
+
+---
+
+### Edge Case: [Name, e.g., Session expired mid-flow]
+
+**Trigger:**
+**Screen / state at trigger:**
+**Handling:**
+**Component behavior:**
+**Recovery path:**
+
+---
+
+### Edge Case: [Name, e.g., Empty / no-data state on entry]
+
+**Trigger:**
+**Screen / state at trigger:**
+**Handling:**
+**Component behavior:**
+**Recovery path:**
+
+---
+
+## 6. AI Generation Rules
+
+### Generate
+
+[What an AI agent can produce from this L3 spec:]
+- [e.g., Screen layouts for all steps in the flow logic]
+- [e.g., Component assembly for each screen using referenced L2 specs]
+- [e.g., Form validation logic for all validated inputs]
+- [e.g., Transition animations between steps]
+- [e.g., Error and empty state screens per edge cases section]
+
+### Validate
+
+[What the agent must check before approving output:]
+- [ ] All components in generated output appear in section 3 Components Used
+- [ ] All components are assembled per their ACTIVE L2 specs (state by state)
+- [ ] All steps in section 4 are represented in the generated flow
+- [ ] All edge cases in section 5 have generated handling
+- [ ] No component in output references a DRAFT or STALE L2 spec
+- [ ] No custom tokens, raw values, or off-spec components appear
+
+### Forbidden
+
+[What the agent must never generate:]
+- Components not listed in section 3
+- Flow steps not in section 4 (no assumed steps)
+- Edge case handling that contradicts section 5 specifications
+- Custom token values or off-token styling
+- [Flow-specific forbidden items]
+
+### Prompt Seed
+
+```
+Generate the [Flow Name] for [Product Name].
+
+Reference: SDDn Delivery Spec [FLOW-L3-NNN] v[version].
+
+Component specs in scope (all ACTIVE):
+[List each: Component Name — spec_id vX.X.X]
+
+Required output:
+- All [N] steps in the flow logic (section 4)
+- Edge case handling for all [N] cases (section 5)
+- Use only components listed in section 3, in the variants and states defined in their L2 specs
+
+Constraints from parent L1 [SYSTEM-L1-NNN]:
+- [Key L1 constraint relevant to this flow]
+- [Accessibility requirement]
+
+Do not generate: steps or components outside this spec.
+```
+
+---
+
+## 7. Definition of Done
+
+[Testable criteria for the complete delivery. Distinct from L2 Acceptance Criteria (per-component). This covers the assembled flow.]
+
+**Functional:**
+- [ ] Happy path completes end-to-end without errors in staging environment
+- [ ] All [N] steps render with correct data and components
+- [ ] [Business-specific completion criterion]
+
+**Edge cases:**
+- [ ] All [N] edge cases in section 5 tested and handled per spec
+- [ ] Network error during submission shows error state and allows retry
+- [ ] [Additional edge case test]
+
+**Accessibility:**
+- [ ] Keyboard navigation completes full flow without mouse
+- [ ] No WCAG 2.2 AA violations in automated scan
+- [ ] Screen reader announces all state changes
+
+**Quality:**
+- [ ] No DRAFT or STALE L2 spec referenced in delivered components
+- [ ] No raw token values in delivered implementation
+- [ ] PO sign-off: flow logic matches business intent
+- [ ] QA regression: no impact on adjacent flows
+
+---
+
+## 8. Validation Checklist
+
+[For the spec reviewer. Distinct from Definition of Done (which is for the implementer).]
+
+**Spec quality:**
+- [ ] All components in section 3 have ACTIVE L2 specs
+- [ ] Flow logic covers all entry points in section 2
+- [ ] All edge cases have explicit, specific handling (not "show an error")
+- [ ] AI Generation Rules do not contradict referenced L2 rules
+- [ ] Definition of Done is fully testable
+
+**Content:**
+- [ ] Intent aligns with approved product requirements
+- [ ] User Context matches current persona / segment definition
+- [ ] Copy in flow logic matches approved voice and tone (per L1 Brand Constraints)
+
+**Inheritance:**
+- [ ] All L2 spec versions in section 9 match section 3
+- [ ] No referenced L2 is in STALE or DEPRECATED state
+
+---
+
+## 9. Inherits From
+
+```yaml
+inherits_from:
+  - spec_id: [COMP-L2-NNN]
+    version: [x.x.x]
+    layer: L2
+  - spec_id: [COMP-L2-NNN]
+    version: [x.x.x]
+    layer: L2
+  - spec_id: [COMP-L2-NNN]
+    version: [x.x.x]
+    layer: L2
+```

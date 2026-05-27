@@ -1,0 +1,408 @@
+---
+spec_id: ODS-UPGRADE-L3-007
+spec_type: delivery
+layer: L3
+version: 1.2.0
+status: ACTIVE
+owner: elena.torres
+contributors:
+  - elena.torres
+  - javier.saavedra
+  - sofia.kim (QA Lead)
+created: 2026-03-10
+last_reviewed: 2026-05-03
+reviewed_by:
+  - elena.torres (Product Owner)
+  - sofia.kim (QA Lead)
+review_sla: 24h
+next_review: 2026-08-03
+inherits_from:
+  - spec_id: ODS-BTN-L2-001
+    version: 2.0.0
+    layer: L2
+  - spec_id: ODS-INPUT-L2-003
+    version: 1.4.0
+    layer: L2
+  - spec_id: ODS-MOD-L2-001
+    version: 1.2.0
+    layer: L2
+  - spec_id: ODS-TOAST-L2-002
+    version: 1.0.0
+    layer: L2
+  - spec_id: ODS-BADGE-L2-001
+    version: 1.1.0
+    layer: L2
+  - spec_id: ODS-CARD-L2-001
+    version: 1.3.0
+    layer: L2
+---
+
+# Plan Upgrade Flow — Delivery Spec
+
+## 1. Intent
+
+This spec governs the flow for an Orbit user upgrading their workspace from the Trial plan to the Pro plan. The goal is to capture payment and complete the upgrade with minimal friction and maximum clarity about what the user is getting. Drop-off between plan selection and payment confirmation is the primary metric this flow protects.
+
+---
+
+## 2. User Context
+
+**User type:** Authenticated Orbit user. Workspace role: Admin or Owner. Current plan: Trial (14-day, not expired). Trial usage: has created at least one report or dashboard (shown intent). Device: Desktop browser (this flow is intentionally desktop-first; mobile is a separate spec ODS-UPGRADE-MOBILE-L3-008).
+
+**Entry points:**
+- Trial expiry banner CTA: "Upgrade to Pro" (appears 3 days before trial end)
+- Settings → Billing → "Upgrade plan" button
+- Paywall modal when user attempts to use a Pro-only feature during trial
+
+**Prior knowledge:** The user has used Orbit during their trial. They understand what the product does. They may not know Pro plan pricing or feature limits until they see this flow.
+
+**User goal:** Upgrade their workspace to Pro, provide payment, and continue using Orbit without interruption.
+
+**Anxiety / friction points:**
+- "Will I be charged immediately or when my trial ends?" — users fear surprise charges
+- "What happens to my data and reports if I don't upgrade?" — loss aversion
+- "Is this a monthly or annual commitment?" — billing cycle ambiguity
+- "What if my card doesn't work?" — payment failure fear, especially in B2B where the card may be a corporate card with restrictions
+
+---
+
+## 3. Components Used
+
+| Component | Variants Used | Spec ID | Version |
+|-----------|--------------|---------|---------|
+| Button | Primary, Secondary, Ghost | ODS-BTN-L2-001 | 2.0.0 |
+| Input (text/email) | text, credit card number, expiry, CVV | ODS-INPUT-L2-003 | 1.4.0 |
+| Modal | Confirmation (destructive) | ODS-MOD-L2-001 | 1.2.0 |
+| Toast | Success, Error | ODS-TOAST-L2-002 | 1.0.0 |
+| Badge | Info (plan label), Success (active plan) | ODS-BADGE-L2-001 | 1.1.0 |
+| Card | Default, raised | ODS-CARD-L2-001 | 1.3.0 |
+
+All specs listed are ACTIVE as of this spec's last review date (2026-05-03).
+
+---
+
+## 4. Flow Logic
+
+### Step 1: Plan Selection
+
+**Displayed:**
+- Page heading: "Choose your plan"
+- Two plan cards side by side (Card component, raised variant):
+  - Left: Trial card — current plan badge (Badge: info variant, label "Current"), grayed out
+  - Right: Pro card — monthly price (`$49/seat/month`), annual option (`$39/seat/month billed annually`), feature list, "Upgrade to Pro" CTA (Button: Primary)
+- Pricing toggle: Monthly / Annual (toggle selection changes price display on Pro card)
+- Trust signals below cards: "Cancel anytime", "All data preserved", "Upgrade takes effect immediately"
+
+**User can:**
+- Toggle Monthly / Annual → price updates on Pro card, no page navigation
+- Click "Upgrade to Pro" → Step 2 (payment form)
+- Click "Maybe later" (Ghost button, below CTA) → exits flow, returns to previous page
+
+**System behavior:**
+- Page pre-fetches the user's seat count from the workspace API to display "Upgrade your [N] seats" on the Pro card
+- Pricing toggle state is remembered in session (user returning to the page sees their last selection)
+
+---
+
+### Step 2: Payment Form
+
+**Displayed:**
+- Page heading: "Payment details"
+- Order summary panel (Card: default, right column):
+  - Plan: Pro
+  - Billing: [Monthly / Annual — per step 1 selection]
+  - Seats: [N] (from workspace)
+  - Subtotal: $[N × price]
+  - "Billed today" line item: $[same as subtotal unless trial has days remaining]
+  - Footnote: "Your trial ends [date]. You will be charged on that date." (if trial has > 0 days remaining)
+- Payment form (left column):
+  - Cardholder name (Input: text)
+  - Card number (Input: credit card — masked input with card brand detection)
+  - Expiry date (Input: text, MM/YY format)
+  - CVV (Input: text, 3-4 digits, with tooltip explaining where to find it)
+  - Country / Region selector (Input: select)
+- "Complete upgrade" CTA (Button: Primary, full-width in form column)
+- "Back to plans" link (Ghost button, below CTA)
+
+**User can:**
+- Fill payment form → validate on field blur per Input L2 spec
+- Click "Complete upgrade" → validates all fields → Step 3 (processing) or edge case handling
+- Click "Back to plans" → Step 1 (form values preserved in session)
+
+**System behavior:**
+- Card brand detected from first 4 digits; brand icon appears in card number field
+- CVV tooltip appears on focus of CVV field (Phosphor `Question` icon trigger)
+- Stripe.js is used for card tokenization — raw card data never hits Orbit servers
+
+---
+
+### Step 3: Processing
+
+**Displayed:**
+- "Complete upgrade" button enters Loading state (per Button L2 spec: ODS-BTN-L2-001 §Loading state)
+- Page is non-interactive while payment processes
+- No spinner or loading overlay beyond the button — the form remains visible and readable
+
+**System behavior:**
+- Stripe payment intent created server-side
+- 3DS authentication triggered if required (Step 3a)
+- On Stripe success callback → Step 4 (confirmation)
+- On Stripe error callback → returns to Step 2 with error state
+
+---
+
+### Step 3a: 3DS Authentication (conditional)
+
+**Trigger:** Stripe determines 3DS authentication is required for the card.
+
+**Displayed:**
+- Stripe's 3DS iframe appears in a Modal (ODS-MOD-L2-001: non-dismissible alert variant)
+- Modal heading: "Additional verification required"
+- Modal body: "Your bank requires additional verification to complete this payment."
+- Stripe iframe fills the modal content area
+
+**User can:**
+- Complete bank verification → Stripe callback → Step 4 (confirmation)
+- Cancel / fail 3DS → Modal closes, returns to Step 2, error Toast appears: "Verification was not completed. Please try again or use a different card."
+
+---
+
+### Step 4: Confirmation
+
+**Displayed:**
+- Success icon (Phosphor `CheckCircle`, `color-semantic-success`, 64px)
+- Heading: "You're on Pro"
+- Body: "Your workspace has been upgraded. [N] seats are now active."
+- Billing summary: plan, amount, next billing date
+- CTA: "Go to your dashboard" (Button: Primary)
+- Secondary link: "View billing settings" (Ghost button)
+
+**System behavior:**
+- Workspace plan status updated in database
+- Confirmation email sent to workspace billing email
+- Trial expiry banner dismissed system-wide
+- All Pro-gated features unlocked immediately
+
+---
+
+## 5. Edge Cases
+
+### Edge Case: Card declined
+
+**Trigger:** Stripe returns a card declined error after "Complete upgrade" click
+**Screen / state at trigger:** Step 3 (processing) → returns to Step 2
+**Handling:** Button exits Loading state. Error Toast appears at top of page (ODS-TOAST-L2-002, error variant): "Your card was declined. Please check your card details or try a different card." Card number and CVV fields enter Error state (per ODS-INPUT-L2-003 error state). Other fields remain unchanged.
+**Component behavior:** Button → Default state. Card Number Input → Error state. CVV Input → Error state. Toast → Error variant, auto-dismisses after 8 seconds.
+**Recovery path:** User updates card details and clicks "Complete upgrade" again.
+
+---
+
+### Edge Case: Network timeout during payment
+
+**Trigger:** Stripe.js request times out (> 15 seconds) or network connection lost
+**Screen / state at trigger:** Step 3 (processing)
+**Handling:** Button exits Loading state. Error Toast: "We couldn't reach our payment processor. Your card was not charged. Please check your connection and try again."
+**Component behavior:** Button → Default state. Toast → Error variant, persistent (no auto-dismiss — user must dismiss manually or retry).
+**Recovery path:** User clicks "Complete upgrade" again with same or different card.
+
+---
+
+### Edge Case: Duplicate submission
+
+**Trigger:** User finds a way to submit the form twice (e.g., back-button re-submit, race condition)
+**Screen / state at trigger:** Step 3 (processing)
+**Handling:** Server returns idempotency key match → treat as success. No duplicate charge. Flow advances to Step 4.
+**Component behavior:** Normal Step 4 display. No error shown.
+**Recovery path:** N/A — handled transparently.
+
+---
+
+### Edge Case: Session expired mid-flow
+
+**Trigger:** User's authentication session expires while on Step 2 (form open for > 30 minutes)
+**Screen / state at trigger:** Step 2 or Step 3
+**Handling:** On any API call, 401 response triggers a session-expiry modal (non-dismissible, separate from this flow). Modal: "Your session has expired. Please sign in again to complete your upgrade." CTA: "Sign in" redirects to login with return URL set to the upgrade flow.
+**Component behavior:** Session expiry modal (ODS-MOD-L2-001: non-dismissible alert). Form data is preserved in sessionStorage if possible.
+**Recovery path:** User signs in, is returned to Step 2 with form state preserved.
+
+---
+
+### Edge Case: Workspace already on Pro
+
+**Trigger:** User navigates directly to the upgrade URL when workspace is already Pro (e.g., bookmarked URL, admin sharing the link)
+**Screen / state at trigger:** Step 1 load
+**Handling:** Redirect to Settings → Billing with an informational Toast: "Your workspace is already on the Pro plan."
+**Component behavior:** Toast → Info variant. No upgrade flow shown.
+**Recovery path:** N/A — user is on the correct page.
+
+---
+
+### Edge Case: 3DS authentication fails
+
+**Trigger:** User cancels or fails bank verification in Step 3a
+**Screen / state at trigger:** Step 3a modal
+**Handling:** Modal closes. Toast appears: "Verification was not completed. Please try again or use a different card." Both the card number and CVV fields reset to empty (not error state — the user may want to try a different card). "Complete upgrade" button is available.
+**Component behavior:** Modal → closed. Toast → Error variant. Card number and CVV inputs → cleared (not error state). Button → Default state.
+**Recovery path:** User enters new card details and tries again.
+
+---
+
+### Edge Case: Stripe.js fails to load
+
+**Trigger:** Stripe.js CDN is blocked (corporate firewall, adblocker) or returns an error
+**Screen / state at trigger:** Step 2 load
+**Handling:** Payment form is replaced with: "Payment is temporarily unavailable. Please contact support to complete your upgrade manually." Support link opens a pre-filled email to billing@orbitapp.io. "Complete upgrade" button is hidden.
+**Component behavior:** Input fields not rendered. Button hidden. Support link rendered as a standard `<a>` element.
+**Recovery path:** User contacts support.
+
+---
+
+## 6. AI Generation Rules
+
+### Generate
+
+An AI agent operating on this spec may produce:
+- Complete React TypeScript component tree for all 4 steps plus Step 3a
+- Plan selection card layout using ODS-CARD-L2-001 with pricing toggle
+- Payment form with Stripe.js Elements integration scaffold (card element container, not implementation)
+- Order summary sidebar layout
+- Processing state (button loading state only — no page-level overlay)
+- Confirmation screen with success icon and billing summary
+- All edge case UI: error toast triggers, input error states, session-expiry modal trigger, Stripe load failure fallback
+
+### Validate
+
+Before approving any generated output, verify:
+- [ ] All buttons (Primary, Ghost) reference ODS-BTN-L2-001 v2.0.0 behavior, not custom implementations
+- [ ] All input fields reference ODS-INPUT-L2-003 v1.4.0 error state behavior
+- [ ] Payment form does not pass raw card data to any Orbit endpoint (Stripe.js tokenization only)
+- [ ] Order summary values are dynamic (seat count from API, price from pricing config) — no hardcoded prices
+- [ ] "Complete upgrade" button enters Loading state (aria-busy="true") while processing — verified in all steps
+- [ ] All edge cases in section 5 have UI handling in the generated output
+- [ ] Session expiry uses ODS-MOD-L2-001 non-dismissible variant (aria-modal="true", no Escape close)
+- [ ] No component not listed in section 3 appears in generated output
+- [ ] No custom color values appear — all styling uses ODS tokens via CSS custom properties
+
+### Forbidden
+
+An AI agent working on this spec must never:
+- Generate payment form fields that submit card data directly (no `action` pointing to an Orbit server endpoint)
+- Create a "skip payment" or "complete without card" path — this flow requires payment to proceed
+- Generate a loading overlay that covers the entire page during Step 3 (the button's Loading state is the only indication)
+- Invent an additional confirmation step not in the flow logic (no "Are you sure?" confirmation — the pricing displayed in Step 1 and the summary in Step 2 are the confirmation)
+- Generate social proof or upsell content inside the upgrade flow — this is a conversion flow, not a marketing page
+- Implement auto-retry on card decline — user must manually retry
+- Apply Step 4 success state if the Stripe payment intent has not confirmed successfully
+
+### Prompt Seed
+
+```
+Generate the Plan Upgrade Flow for Orbit (B2B analytics SaaS).
+
+Reference: SDDn Delivery Spec ODS-UPGRADE-L3-007 v1.2.0.
+
+Component specs in scope (all ACTIVE):
+- Button: ODS-BTN-L2-001 v2.0.0
+- Input: ODS-INPUT-L2-003 v1.4.0
+- Modal: ODS-MOD-L2-001 v1.2.0
+- Toast: ODS-TOAST-L2-002 v1.0.0
+- Badge: ODS-BADGE-L2-001 v1.1.0
+- Card: ODS-CARD-L2-001 v1.3.0
+
+Framework: React TypeScript + CSS Modules
+Payment: Stripe.js Elements (tokenization only — no raw card data to server)
+
+Required steps: Plan Selection → Payment Form → Processing → Confirmation
+Conditional: Step 3a (3DS authentication) triggered by Stripe
+
+Edge cases to handle: card declined, network timeout, duplicate submission, session expired, already-Pro workspace, 3DS failure, Stripe.js load failure
+
+CSS constraints: All values via CSS custom properties from ODS-L1-001. No hex literals.
+
+Accessibility:
+- One <h1> per step (step heading)
+- Session expiry modal: aria-modal="true", no Escape close
+- Processing: aria-busy="true" on Complete upgrade button only
+- Error messages: aria-live="polite" or Toast component role="alert"
+
+Do not generate: raw card data submission, page-level loading overlay, upsell content, additional confirmation steps.
+```
+
+---
+
+## 7. Definition of Done
+
+**Functional:**
+- [ ] Plan selection page loads with correct seat count from workspace API
+- [ ] Pricing toggle switches between monthly/annual pricing correctly
+- [ ] Payment form submits via Stripe.js — raw card data confirmed not in Orbit network requests
+- [ ] Happy path (valid card, no 3DS) completes end-to-end in staging with plan status updated in DB
+- [ ] Confirmation email received at workspace billing email after successful upgrade
+
+**Edge cases:**
+- [ ] Card declined: error toast + input error states appear, button re-enables
+- [ ] Network timeout: error toast appears, button re-enables, no charge on Stripe dashboard
+- [ ] 3DS triggered: modal appears, completes successfully, advances to confirmation
+- [ ] 3DS failed: modal closes, toast appears, card fields cleared, user can retry
+- [ ] Session expired mid-form: session modal appears, user can sign in and return
+- [ ] Already-Pro workspace: redirected to billing with info toast (no upgrade form shown)
+- [ ] Stripe.js load failure: payment form replaced with support contact message
+
+**Accessibility:**
+- [ ] Full keyboard navigation completes the happy path without mouse
+- [ ] Screen reader announces step headings on step change
+- [ ] Error states announced via `aria-live` or Toast `role="alert"`
+- [ ] No WCAG 2.2 AA violations in axe automated scan
+
+**Quality:**
+- [ ] No raw hex values in any component styles
+- [ ] All components reference correct spec versions (section 3)
+- [ ] PO sign-off: pricing, seat count, billing date display all accurate
+- [ ] QA regression: Settings → Billing page unaffected, trial banner dismissed after upgrade
+
+---
+
+## 8. Validation Checklist
+
+**Spec quality:**
+- [ ] All components in section 3 are ACTIVE L2 specs as of review date
+- [ ] Flow logic covers both entry points (trial banner and settings)
+- [ ] All 6 edge cases have specific, testable handling
+- [ ] AI Generation Rules do not conflict with referenced L2 rules
+- [ ] Definition of Done is fully testable by QA without ambiguity
+
+**Content:**
+- [ ] Intent aligns with the billing product requirements doc (OKR: Reduce upgrade drop-off by 20%)
+- [ ] User Context reflects the Analytics Admin persona (persona doc v3.2)
+- [ ] Anxiety points addressed in the trust signals on Step 1
+- [ ] Pricing values ($49/$39) confirmed current with Finance as of 2026-05-03
+
+**Inheritance:**
+- [ ] All L2 spec versions in section 9 match section 3
+- [ ] No referenced L2 is STALE or DEPRECATED
+
+---
+
+## 9. Inherits From
+
+```yaml
+inherits_from:
+  - spec_id: ODS-BTN-L2-001
+    version: 2.0.0
+    layer: L2
+  - spec_id: ODS-INPUT-L2-003
+    version: 1.4.0
+    layer: L2
+  - spec_id: ODS-MOD-L2-001
+    version: 1.2.0
+    layer: L2
+  - spec_id: ODS-TOAST-L2-002
+    version: 1.0.0
+    layer: L2
+  - spec_id: ODS-BADGE-L2-001
+    version: 1.1.0
+    layer: L2
+  - spec_id: ODS-CARD-L2-001
+    version: 1.3.0
+    layer: L2
+```

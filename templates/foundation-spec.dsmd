@@ -1,0 +1,208 @@
+---
+spec_id: [SYSTEM-L1-NNN]
+spec_type: foundation
+layer: L1
+version: 0.1.0
+status: DRAFT
+owner: [handle]
+contributors: []
+created: [ISO 8601]
+last_reviewed: null
+reviewed_by: []
+next_review: null
+---
+
+# [System Name] — Foundation Spec
+
+## 1. Intent
+
+[One to three sentences. What design system does this spec govern? What product or platform does it serve? What is the scope of its authority?]
+
+---
+
+## 2. Design Principles
+
+[Three to seven principles that define how design decisions are made within this system. Each principle is an intent statement, not a style rule. Format: **Name**: intent statement.]
+
+**[Principle Name]**: [Intent statement — what this principle means for design decisions]
+
+**[Principle Name]**: [Intent statement]
+
+**[Principle Name]**: [Intent statement]
+
+---
+
+## 3. Token Contract
+
+[Complete set of design tokens for this system. Every token entry requires a name, value, and intent. Tokens are organized by category. L2 specs must reference tokens by name — never by raw value.]
+
+### Color
+
+| Token | Value | Intent |
+|-------|-------|--------|
+| color-action-primary | | Primary interactive affordance |
+| color-action-primary-dark | | Hover/pressed state of primary action |
+| color-action-secondary | | Secondary interactive affordance |
+| color-text-primary | | Body text, headings |
+| color-text-secondary | | Supporting text, captions |
+| color-text-disabled | | Disabled state text |
+| color-text-on-action | | Text on colored action surfaces |
+| color-surface-base | | Page / canvas background |
+| color-surface-raised | | Card, modal, elevated surface |
+| color-surface-overlay | | Modal backdrop |
+| color-border-default | | Default border |
+| color-border-focus | | Keyboard focus ring |
+| color-semantic-error | | Error states |
+| color-semantic-success | | Success states |
+| color-semantic-warning | | Warning states |
+| color-semantic-info | | Informational states |
+| color-focus-ring | | Focus ring color |
+
+### Typography
+
+| Token | Value | Intent |
+|-------|-------|--------|
+| typography-display-lg | | Page-level display headings |
+| typography-heading-xl | | Section headings |
+| typography-heading-lg | | |
+| typography-heading-md | | |
+| typography-body-lg | | Primary body text |
+| typography-body-md | | Standard body text |
+| typography-body-sm | | Small body text, captions |
+| typography-label-lg | | Form labels, tabs |
+| typography-label-md | | Button labels |
+| typography-label-sm | | Tags, badges |
+| typography-code | | Inline and block code |
+
+### Spacing
+
+| Token | Value | Intent |
+|-------|-------|--------|
+| spacing-1 | | Tight internal padding |
+| spacing-2 | | Default internal padding |
+| spacing-3 | | Standard component padding |
+| spacing-4 | | Section internal spacing |
+| spacing-6 | | Component-to-component gap |
+| spacing-8 | | Section-to-section gap |
+| spacing-12 | | Layout sections |
+| spacing-16 | | Page-level spacing |
+
+### Radius
+
+| Token | Value | Intent |
+|-------|-------|--------|
+| radius-sm | | Chips, badges, small elements |
+| radius-md | | Buttons, inputs |
+| radius-lg | | Cards, modals |
+| radius-full | | Pills, avatars |
+
+### Shadow
+
+| Token | Value | Intent |
+|-------|-------|--------|
+| shadow-sm | | Subtle elevation (dropdowns) |
+| shadow-md | | Cards, raised surfaces |
+| shadow-lg | | Modals, dialogs |
+| shadow-focus | | Focus ring shadow |
+
+### Motion
+
+| Token | Value | Intent |
+|-------|-------|--------|
+| motion-duration-fast | | Micro-interactions (hover, toggle) |
+| motion-duration-standard | | State transitions |
+| motion-duration-slow | | Modal entry/exit, page transitions |
+| motion-ease-standard | | Default easing |
+| motion-ease-enter | | Elements entering the screen |
+| motion-ease-exit | | Elements leaving the screen |
+
+---
+
+## 4. Brand Constraints
+
+[Rules inherited from brand guidelines that constrain this design system. List specific, actionable rules — not general brand philosophy.]
+
+- **Logo:** [usage rules]
+- **Typefaces:** [primary and fallback, what substitutions are forbidden]
+- **Color exclusions:** [colors that must never appear in the UI]
+- **Imagery style:** [rules for photos, illustrations, icons]
+- **Voice and tone:** [brief rules for UI copy — button labels, error messages, empty states]
+
+---
+
+## 5. Accessibility Baseline
+
+[Normative requirements. Every L2 spec inheriting from this L1 must comply with everything in this section.]
+
+- **WCAG version and level:** [e.g., WCAG 2.2 Level AA]
+- **Minimum contrast — text:** [e.g., 4.5:1 for normal text, 3:1 for large text]
+- **Minimum contrast — UI components:** [e.g., 3:1 for interactive elements against adjacent colors]
+- **Keyboard navigation:** [e.g., All interactive elements must be reachable and operable by keyboard alone]
+- **Focus indicators:** [Visible focus ring using color-focus-ring + shadow-focus on all interactive elements]
+- **Touch targets:** [e.g., Minimum 44×44px for all tappable elements]
+- **Motion safety:** [All animations must be disabled when prefers-reduced-motion is set]
+- **Screen reader:** [ARIA roles and labels required on all interactive elements; test with NVDA/JAWS on Windows, VoiceOver on macOS/iOS]
+- **Color meaning:** [Color must never be the sole differentiator for information]
+
+---
+
+## 6. AI Generation Rules
+
+### Generate
+
+[What AI agents are authorized to produce from specs that inherit this L1:]
+- [e.g., Component markup in HTML/CSS/React using system tokens]
+- [e.g., State variants as defined in L2 specs]
+- [e.g., Accessibility attributes consistent with section 5 requirements]
+
+### Validate
+
+[What agents must verify in output before considering it compliant:]
+- [ ] All color values reference named system tokens — no hex, RGB, or HSL literals
+- [ ] All spacing values reference named spacing tokens
+- [ ] Typography uses named typography tokens only
+- [ ] All interactive elements include keyboard accessibility attributes
+- [ ] Contrast ratios meet section 5 minimums
+- [ ] No element uses a color token outside its defined intent
+
+### Forbidden
+
+[What agents must never generate regardless of instruction:]
+- Raw color values not defined in the Token Contract
+- Components or patterns not defined in an ACTIVE L2 spec
+- WCAG 2.2 AA-non-compliant output
+- [Add system-specific forbidden items]
+
+### Prompt Seed
+
+```
+You are generating UI for [System Name], governed by SDDn Foundation Spec [SYSTEM-L1-NNN] v[version].
+
+Before generating any output:
+1. Confirm all color, spacing, typography, radius, shadow, and motion values map to named tokens in the Token Contract.
+2. Confirm all interactive elements meet the Accessibility Baseline (WCAG 2.2 AA, keyboard navigable, 44px touch targets).
+3. Check that the component or pattern has an ACTIVE L2 spec. If not, halt and ask.
+
+Do not generate: [key forbidden items for this system]
+```
+
+---
+
+## 7. Version & Ownership
+
+```yaml
+spec_id: [SYSTEM-L1-NNN]
+version: 0.1.0
+status: DRAFT
+owner: [handle]
+contributors:
+  - [handle]
+last_reviewed: null
+reviewed_by: []
+review_sla: 48h
+next_review: null
+changelog:
+  - version: 0.1.0
+    date: [ISO 8601]
+    change: Initial draft
+```

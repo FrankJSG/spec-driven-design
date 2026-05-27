@@ -1,0 +1,272 @@
+---
+spec_id: [COMP-L2-NNN]
+spec_type: behavior
+layer: L2
+version: 0.1.0
+status: DRAFT
+owner: [handle]
+contributors: []
+created: [ISO 8601]
+last_reviewed: null
+reviewed_by: []
+next_review: null
+inherits_from:
+  spec_id: [SYSTEM-L1-NNN]
+  version: [L1 version this spec was written against]
+  last_verified: [ISO 8601]
+---
+
+# [Component Name] — Behavior Spec
+
+## 1. Intent
+
+[One to two sentences. What is this component for? What behavioral problem does it solve? Not a visual description — describe why it exists and what role it plays in the system.]
+
+---
+
+## 2. Scope & Boundaries
+
+**In scope:**
+- [State, variant, or behavior covered by this spec]
+- [State, variant, or behavior covered by this spec]
+
+**Out of scope:**
+- [Related element explicitly NOT covered — include spec ID if one exists]
+- [Related element explicitly NOT covered]
+
+---
+
+## 3. States & Variants
+
+### Variants
+
+#### [Variant name, e.g., Primary]
+
+**When to use:** [specific condition where this variant is appropriate]
+**When NOT to use:** [condition where a different variant must be used instead]
+**Visual spec:**
+
+| Property | Token |
+|----------|-------|
+| Background | |
+| Text color | |
+| Border | |
+| Padding (h/v) | |
+| Border-radius | |
+| Font | |
+
+#### [Variant name, e.g., Secondary]
+
+**When to use:**
+**When NOT to use:**
+**Visual spec:**
+
+| Property | Token |
+|----------|-------|
+| | |
+
+#### [Variant name, e.g., Destructive]
+
+**When to use:**
+**When NOT to use:**
+**Visual spec:**
+
+| Property | Token |
+|----------|-------|
+| | |
+
+---
+
+### States
+
+[Document every state this component can be in. Minimum required: Default, Hover, Focus, Active, Disabled, Loading (if async), Error (if validating).]
+
+#### Default
+
+[Base appearance. No interaction in progress. Reference variant tables above for values.]
+
+#### Hover
+
+**Visual change:** [what changes from default]
+**Behavioral change:** [cursor change, tooltip appearance, etc.]
+
+#### Focus
+
+**Visual change:** [focus ring using color-focus-ring + shadow-focus tokens]
+**Behavioral change:** [keyboard interaction enabled]
+**Accessibility note:** Focus ring must be visible against all surface colors used behind this component.
+
+#### Active / Pressed
+
+**Visual change:** [pressed state visual]
+**Behavioral change:** [interaction being committed]
+
+#### Disabled
+
+**Visual change:** [reduced opacity using color-text-disabled, muted background]
+**Behavioral change:** Pointer events disabled. Not keyboard focusable. Not submittable.
+**Accessibility:** `aria-disabled="true"`. Do not use HTML `disabled` attribute alone — use `aria-disabled` to ensure screen readers announce the state.
+
+#### Loading
+
+**Visual change:** [spinner replaces label, or skeleton overlay — specify which]
+**Behavioral change:** Interaction locked. Cannot be triggered again until state resolves.
+
+#### Error
+
+**Visual change:** [color-semantic-error applied to border or icon]
+**Behavioral change:** [what changes about interaction in error state]
+
+---
+
+## 4. Token Usage
+
+[Explicit mapping of every visual decision to an L1 token. No raw values permitted. If a needed value is not in the L1 Token Contract, the L1 must be updated first.]
+
+| Property | Variant / State | Token |
+|----------|----------------|-------|
+| Background | Default | |
+| Background | Hover | |
+| Background | Disabled | |
+| Text | Default | |
+| Text | Disabled | |
+| Border | Default | |
+| Border | Focus | |
+| Focus ring | Focus | |
+| Padding horizontal | All | |
+| Padding vertical | All | |
+| Border radius | All | |
+| Font | Label | |
+| Transition duration | Hover, Focus | |
+| Transition easing | Hover, Focus | |
+| Min width | | |
+| Min height (touch) | | |
+
+---
+
+## 5. Interaction Contract
+
+### Mouse
+
+| Event | Response |
+|-------|----------|
+| Hover | [enter hover state, cursor pointer] |
+| Click / Mousedown | [enter active state] |
+| Mouseup | [trigger action, return to hover state] |
+| Click on disabled | [no response, no cursor change] |
+
+### Keyboard
+
+| Key | Response |
+|-----|----------|
+| Tab | [focus moves to this element] |
+| Shift+Tab | [focus moves away] |
+| Enter | [triggers action] |
+| Space | [triggers action, if applicable] |
+| Escape | [dismisses if in overlay context, else no effect] |
+
+### Touch
+
+| Event | Response |
+|-------|----------|
+| Tap | [triggers action] |
+| Long press | [no special behavior unless specified] |
+
+### Async behavior
+
+[If this component triggers an async operation:]
+- On trigger: enters Loading state, locks interaction
+- On success: [transitions to success state or returns to default]
+- On error: [transitions to error state, unlocks interaction for retry]
+- On timeout (>Ns): [shows error state with retry option]
+
+---
+
+## 6. Do / Don't
+
+| Do | Don't | Why |
+|----|-------|-----|
+| [Correct usage] | [Incorrect usage] | [Reason this rule exists] |
+| [Correct usage] | [Incorrect usage] | [Reason] |
+| [Correct usage] | [Incorrect usage] | [Reason] |
+| [Correct usage] | [Incorrect usage] | [Reason] |
+
+---
+
+## 7. AI Generation Rules
+
+### Generate
+
+[What an AI agent can produce from this spec:]
+- [e.g., All defined variants with correct token-mapped styles]
+- [e.g., State transition CSS/JS for all states in section 3]
+- [e.g., Accessible HTML with required ARIA attributes]
+- [e.g., Storybook stories for each variant × state combination]
+
+### Validate
+
+[What the agent must verify before approving output:]
+- [ ] All token references map to the parent L1 spec (spec_id: [SYSTEM-L1-NNN])
+- [ ] All variants defined in section 3 are represented
+- [ ] All states defined in section 3 are implemented
+- [ ] Disabled state is keyboard-inaccessible AND aria-disabled is present
+- [ ] Focus ring is visible in all variants
+- [ ] Touch target minimum (44×44px) is met
+- [ ] No raw color, spacing, or font values appear in output
+
+### Forbidden
+
+[What the agent must never generate:]
+- Variants not defined in section 3
+- States not defined in section 3
+- Raw values for any property in the Token Usage table
+- Implementations that violate any Do/Don't rule in section 6
+- [Component-specific forbidden items]
+
+### Prompt Seed
+
+```
+Generate a [Component Name] component for [System Name].
+
+Reference: SDDn Behavior Spec [COMP-L2-NNN] v[version], inheriting from Foundation Spec [SYSTEM-L1-NNN] v[L1 version].
+
+Requirements:
+- Variants: [list from section 3]
+- States per variant: default, hover, focus, active, disabled, loading, error
+- All styles must use named tokens from [SYSTEM-L1-NNN] — no raw values
+- Keyboard: Tab to focus, Enter/Space to activate
+- ARIA: [specific requirements for this component]
+- Touch target: minimum 44×44px
+
+Do not generate: variants or states not in spec [COMP-L2-NNN], raw hex or spacing values.
+```
+
+---
+
+## 8. Acceptance Criteria
+
+[Testable criteria. Every item must be verifiable by a QA engineer or automated test. No subjective criteria.]
+
+- [ ] [Variant 1] renders with correct background, text, and border tokens in Default state
+- [ ] [Variant 2] renders with correct tokens in Default state
+- [ ] All variants: Hover state applies correct background token change
+- [ ] All variants: Focus state shows focus ring using color-focus-ring token
+- [ ] All variants: Active state applies pressed visual change
+- [ ] All variants: Disabled state — pointer events blocked, aria-disabled="true" present
+- [ ] All variants: Loading state — spinner visible, interaction locked
+- [ ] All variants: Error state — color-semantic-error token applied to [element]
+- [ ] Keyboard: Tab reaches component, Enter activates it
+- [ ] Touch target: computed size ≥ 44×44px
+- [ ] Color contrast: all variant × state combinations pass WCAG 2.2 AA
+- [ ] [Component-specific criteria]
+
+---
+
+## 9. Inherits From
+
+```yaml
+inherits_from:
+  spec_id: [SYSTEM-L1-NNN]
+  version: [L1 version]
+  last_verified: [ISO 8601]
+```

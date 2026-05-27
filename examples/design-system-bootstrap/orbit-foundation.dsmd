@@ -1,0 +1,271 @@
+---
+spec_id: ODS-L1-001
+spec_type: foundation
+layer: L1
+version: 1.0.0
+status: ACTIVE
+owner: javier.saavedra
+contributors:
+  - javier.saavedra
+  - ana.reyes
+  - marcos.chen
+created: 2026-01-15
+last_reviewed: 2026-05-01
+reviewed_by:
+  - ana.reyes (Design Lead)
+  - elena.torres (Product Owner)
+review_sla: 48h
+next_review: 2026-08-01
+---
+
+# Orbit Design System — Foundation Spec
+
+## 1. Intent
+
+This Foundation Spec governs the Orbit Design System (ODS) — the single source of visual and behavioral truth for all interfaces in the Orbit analytics platform. It defines the immutable constraints that all components, screens, and AI-generated output must respect. When a design decision is consistent with ODS, it does not require individual justification.
+
+---
+
+## 2. Design Principles
+
+**Clarity over density:** Analytics surfaces contain large amounts of data. Every layout decision must reduce cognitive load, not maximize information per pixel. When in doubt, remove rather than add.
+
+**Precision without coldness:** Orbit is used by growth professionals who care about accuracy. The system should feel precise and trustworthy — but not clinical or hostile. Rounded corners, generous spacing, and warm neutrals create data contexts that users want to return to.
+
+**Progressive disclosure:** Surface the most important thing first. Secondary information is one interaction away. No dashboard panel should require scrolling before the user understands its primary message.
+
+**Consistent affordance:** Interactive elements must always look interactive. Non-interactive elements must never look interactive. This rule is absolute — it applies to data visualizations, tables, and typographic elements as much as to buttons.
+
+**Accessible by default:** Accessibility is not a feature to be added later. Every token choice, every component decision, and every layout pattern defaults to WCAG 2.2 AA compliance. Exceptions require explicit justification and explicit documentation.
+
+---
+
+## 3. Token Contract
+
+### Color
+
+| Token | Value | Intent |
+|-------|-------|--------|
+| color-action-primary | #3B6FF0 | Primary interactive affordance — CTAs, links, active states |
+| color-action-primary-dark | #2D56CC | Hover and pressed state of primary action |
+| color-action-primary-subtle | #EEF2FD | Light background for primary action areas (banners, callouts) |
+| color-action-secondary | #6B7280 | Secondary interactive affordance — secondary buttons, supporting icons |
+| color-action-secondary-dark | #4B5563 | Hover/pressed state of secondary action |
+| color-text-primary | #111827 | Body text, headings, high-importance labels |
+| color-text-secondary | #6B7280 | Supporting text, captions, metadata, placeholders |
+| color-text-disabled | #D1D5DB | Disabled state text and icons |
+| color-text-on-action | #FFFFFF | Text on colored action surfaces (primary button label) |
+| color-text-link | #3B6FF0 | Inline hyperlinks |
+| color-text-link-visited | #7C3AED | Visited link state |
+| color-surface-base | #F9FAFB | Page canvas background |
+| color-surface-raised | #FFFFFF | Cards, modals, sidebar, header — surfaces above canvas |
+| color-surface-overlay | #111827 | Modal backdrop (used at 60% opacity) |
+| color-surface-selected | #EEF2FD | Selected row, active list item background |
+| color-border-default | #E5E7EB | Default borders and dividers |
+| color-border-strong | #9CA3AF | Emphasized borders, table headers |
+| color-border-focus | #3B6FF0 | Keyboard focus ring |
+| color-semantic-error | #DC2626 | Error states — form validation, destructive actions |
+| color-semantic-error-subtle | #FEF2F2 | Error message background |
+| color-semantic-success | #16A34A | Success states — confirmations, positive trends |
+| color-semantic-success-subtle | #F0FDF4 | Success message background |
+| color-semantic-warning | #D97706 | Warning states — degraded data, approaching limits |
+| color-semantic-warning-subtle | #FFFBEB | Warning message background |
+| color-semantic-info | #2563EB | Informational states — tips, announcements |
+| color-semantic-info-subtle | #EFF6FF | Info message background |
+| color-focus-ring | #3B6FF0 | Focus ring color (same as action primary for consistency) |
+| color-data-1 | #3B6FF0 | Data visualization series 1 |
+| color-data-2 | #10B981 | Data visualization series 2 |
+| color-data-3 | #F59E0B | Data visualization series 3 |
+| color-data-4 | #EF4444 | Data visualization series 4 |
+| color-data-5 | #8B5CF6 | Data visualization series 5 |
+
+### Typography
+
+All typography uses the Inter typeface family. Fallback: system-ui, -apple-system, sans-serif.
+
+| Token | Value | Intent |
+|-------|-------|--------|
+| typography-display-lg | Inter 800 48px / 56px lh | Dashboard page hero titles |
+| typography-heading-xl | Inter 700 32px / 40px lh | Page titles, modal headings |
+| typography-heading-lg | Inter 700 24px / 32px lh | Section headings |
+| typography-heading-md | Inter 600 20px / 28px lh | Card headings, panel titles |
+| typography-heading-sm | Inter 600 16px / 24px lh | Subsection headings |
+| typography-body-lg | Inter 400 18px / 28px lh | Lead body text |
+| typography-body-md | Inter 400 16px / 24px lh | Standard body text |
+| typography-body-sm | Inter 400 14px / 20px lh | Secondary body, helper text |
+| typography-label-lg | Inter 500 16px / 24px lh | Form labels, tab labels |
+| typography-label-md | Inter 500 14px / 20px lh | Button labels, badge text, nav items |
+| typography-label-sm | Inter 500 12px / 16px lh | Tags, metadata, table column headers |
+| typography-code | JetBrains Mono 400 14px / 20px lh | Inline code, SQL, filter expressions |
+| typography-numeric-display | Inter 700 36px / 44px tabular-nums | KPI metric values |
+| typography-numeric-md | Inter 600 20px / 28px tabular-nums | In-table numeric values |
+
+### Spacing
+
+Base unit: 4px.
+
+| Token | Value | Intent |
+|-------|-------|--------|
+| spacing-0.5 | 2px | Micro gaps |
+| spacing-1 | 4px | Tight internal padding (badges, chips) |
+| spacing-2 | 8px | Default internal padding (input vertical, icon padding) |
+| spacing-3 | 12px | Standard component padding |
+| spacing-4 | 16px | Section internal spacing |
+| spacing-5 | 20px | |
+| spacing-6 | 24px | Card and panel padding |
+| spacing-8 | 32px | Between related components |
+| spacing-10 | 40px | |
+| spacing-12 | 48px | Section-to-section gap |
+| spacing-16 | 64px | Page section vertical padding |
+| spacing-20 | 80px | Large section separations |
+| spacing-24 | 96px | |
+
+### Radius
+
+| Token | Value | Intent |
+|-------|-------|--------|
+| radius-sm | 4px | Chips, tags, badge (rectangular) |
+| radius-md | 6px | Buttons, inputs, small cards |
+| radius-lg | 8px | Cards, modals, panels |
+| radius-xl | 12px | Large modals, feature cards |
+| radius-full | 9999px | Pill badges, avatars, toggle switches |
+
+### Shadow
+
+| Token | Value | Intent |
+|-------|-------|--------|
+| shadow-sm | 0 1px 2px rgba(0,0,0,0.05) | Subtle elevation — dropdowns, tooltips |
+| shadow-md | 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -1px rgba(0,0,0,0.05) | Cards, raised panels |
+| shadow-lg | 0 10px 15px -3px rgba(0,0,0,0.10), 0 4px 6px -2px rgba(0,0,0,0.06) | Modals, command palette |
+| shadow-focus | 0 0 0 3px rgba(59,111,240,0.30) | Focus ring outer glow |
+
+### Motion
+
+| Token | Value | Intent |
+|-------|-------|--------|
+| motion-duration-fast | 120ms | Micro-interactions (hover, checkbox toggle) |
+| motion-duration-standard | 200ms | State transitions (modal entry, dropdown) |
+| motion-duration-slow | 350ms | Page transitions, complex animations |
+| motion-ease-standard | cubic-bezier(0.4, 0, 0.2, 1) | Default easing — most transitions |
+| motion-ease-enter | cubic-bezier(0.0, 0, 0.2, 1) | Elements entering viewport |
+| motion-ease-exit | cubic-bezier(0.4, 0, 1, 1) | Elements leaving viewport |
+| motion-ease-spring | cubic-bezier(0.34, 1.56, 0.64, 1) | Playful entry for success states |
+
+---
+
+## 4. Brand Constraints
+
+- **Logo:** Orbit wordmark must appear in the header on every authenticated page. On dark backgrounds, use the white variant. Never distort, recolor, or crop the logo. Minimum clear space: spacing-4 on all sides.
+- **Typefaces:** Inter is the system typeface for all UI text. JetBrains Mono for code and data expressions. No other typefaces may be used in the UI. Web fonts are loaded from the system's font CDN — no Google Fonts in production.
+- **Color exclusions:** Pure black (`#000000`) and pure white (`#FFFFFF`) may only be used for `color-text-on-action` and `color-surface-raised` respectively — not for arbitrary background or border use. Bright, fully-saturated colors (saturation > 90%) are not permitted in the UI except as data visualization series colors.
+- **Imagery:** Orbit uses abstract geometric illustrations, never photographs or stock images in the product UI. Illustrations follow the system's illustration spec (ODS-ILL-001). Empty states use the standard illustration kit.
+- **Voice and tone:** Button labels are verbs: "Save changes", "Invite teammate", "Delete report". Not nouns. Not confirmations ("OK", "Yes"). Errors describe what happened and what to do: "The report could not be saved. Check your connection and try again." Never blame the user.
+
+---
+
+## 5. Accessibility Baseline
+
+- **WCAG conformance:** WCAG 2.2 Level AA (full compliance required; AAA where achievable without design tradeoff)
+- **Text contrast:** Minimum 4.5:1 for normal text (< 18pt / < 14pt bold). Minimum 3:1 for large text (≥ 18pt / ≥ 14pt bold).
+- **UI component contrast:** Minimum 3:1 for interactive element boundaries (button border, input border) against adjacent background.
+- **Keyboard navigation:** All interactive elements are reachable and operable by keyboard alone. Tab order follows visual reading order. No keyboard traps except in modal dialogs (intentional focus trap).
+- **Focus indicators:** Visible focus ring on all interactive elements using `color-focus-ring` + `shadow-focus`. Focus ring is never removed with `outline: none` without a replacement.
+- **Touch targets:** Minimum 44×44px for all tappable and clickable elements. Applies to icon buttons, navigation items, table row actions.
+- **Motion safety:** All CSS animations and transitions must be disabled or reduced when `prefers-reduced-motion: reduce` is set by the user. Animated data visualizations must have a static fallback.
+- **Screen reader compatibility:** Semantic HTML required. ARIA attributes only to supplement semantics, never replace them. Test coverage: NVDA + Firefox (Windows), VoiceOver + Safari (macOS), VoiceOver + Safari (iOS).
+- **Color meaning:** Color never carries information alone. Status indicators, trend arrows, validation states must include an icon or text label in addition to color.
+- **Cognitive load:** Timeout warnings must be shown at least 20 seconds before session expiry, with an option to extend.
+
+---
+
+## 6. AI Generation Rules
+
+### Generate
+
+AI agents generating output for Orbit may produce:
+- Component markup and styles in React (TypeScript) + CSS modules, using Orbit design tokens as CSS custom properties
+- Component stories in Storybook CSF format
+- Unit tests using Vitest + Testing Library
+- Accessibility attribute markup (ARIA roles, states, properties) consistent with this spec
+- Icon usage from the Phosphor icon library (the system's declared icon set)
+- Motion/animation code using declared motion tokens
+- Documentation strings for components (one-line per component, one-line per prop)
+
+### Validate
+
+Before approving any AI-generated output for Orbit, verify:
+- [ ] All color values reference CSS custom properties (`var(--color-*)`) — no hex, RGB, or HSL literals
+- [ ] All spacing values reference `var(--spacing-*)` tokens — no raw pixel values
+- [ ] All typography references `var(--typography-*)` tokens — no raw font-size or line-height values
+- [ ] All interactive elements are keyboard accessible (Tab to reach, Enter/Space to activate)
+- [ ] Focus ring present on all interactive elements using `var(--color-focus-ring)` + `var(--shadow-focus)`
+- [ ] Minimum touch target 44×44px in all interactive elements
+- [ ] Color contrast passes WCAG 2.2 AA (verify computed contrast for all color pairs)
+- [ ] `prefers-reduced-motion` media query present in any file that uses animations
+- [ ] Icons from Phosphor only — no inline SVG with custom paths not from the Phosphor set
+- [ ] No `!important` declarations in generated CSS (except for CSS reset if necessary)
+
+### Forbidden
+
+AI agents operating on Orbit must never generate:
+- Raw hex, RGB, or HSL color values in component styles
+- Raw pixel values for spacing, font-size, or line-height
+- Components or patterns not covered by an ACTIVE L2 spec
+- `outline: none` or `outline: 0` on any interactive element without a replacement focus indicator
+- Non-Phosphor SVG icons
+- Inline `style` attributes in JSX (beyond dynamic values that cannot be expressed as tokens)
+- WCAG 2.2 AA-non-compliant output
+- Components with hardcoded dimensions in pixels that should be fluid or token-based
+
+### Prompt Seed
+
+```
+You are generating UI for Orbit, a B2B SaaS analytics platform governed by the Orbit Design System.
+
+Foundation Spec: ODS-L1-001 v1.0.0
+
+Before generating any output:
+1. All color values must use CSS custom properties: var(--color-action-primary), var(--color-text-primary), etc.
+2. All spacing must use var(--spacing-*) tokens. No raw pixel values.
+3. All typography must use var(--typography-*) tokens. No raw font-size values.
+4. All interactive elements must be keyboard accessible. Focus ring: var(--color-focus-ring) + var(--shadow-focus).
+5. All interactive element touch targets ≥ 44×44px.
+6. Include prefers-reduced-motion in any animation CSS.
+7. Icons must come from the Phosphor icon library only.
+
+Do not generate: raw hex values, non-Phosphor icons, outline: none without replacement, components without an ACTIVE L2 spec.
+```
+
+---
+
+## 7. Version & Ownership
+
+```yaml
+spec_id: ODS-L1-001
+version: 1.0.0
+status: ACTIVE
+owner: javier.saavedra
+contributors:
+  - javier.saavedra
+  - ana.reyes
+  - marcos.chen
+last_reviewed: 2026-05-01
+reviewed_by:
+  - ana.reyes (Design Lead)
+  - elena.torres (Product Owner)
+review_sla: 48h
+next_review: 2026-08-01
+changelog:
+  - version: 1.0.0
+    date: 2026-05-01
+    change: Initial ACTIVE release. Full token set, brand constraints, accessibility baseline.
+  - version: 0.3.0
+    date: 2026-04-10
+    change: Added data visualization color tokens (color-data-1 through color-data-5). Added typography-numeric-display and typography-numeric-md tokens.
+  - version: 0.2.0
+    date: 2026-03-01
+    change: Added motion tokens. Expanded shadow system to 4 levels.
+  - version: 0.1.0
+    date: 2026-01-15
+    change: Initial draft covering color, typography, spacing, radius.
+```
