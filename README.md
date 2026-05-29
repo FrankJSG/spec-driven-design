@@ -2,7 +2,7 @@
 
 > **SDDn (Spec Driven Design)** is a framework that transforms design — a historically interpretive discipline — into a system of structured, versionable, and AI-executable specifications, without sacrificing creative intent.
 
-![Version](https://img.shields.io/badge/version-0.1.0-blue)
+![Version](https://img.shields.io/badge/version-0.2.0-blue)
 ![Status](https://img.shields.io/badge/status-Early%20Access%20%2F%20Community%20RFC-yellow)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -99,6 +99,23 @@ sddn-framework/
 | [`framework/05-spec-health-system.md`](framework/05-spec-health-system.md) | Spec states and lifecycle transitions |
 | [`framework/06-review-matrix.md`](framework/06-review-matrix.md) | Who reviews what and at what SLA |
 | [`framework/07-lifecycle.md`](framework/07-lifecycle.md) | The full SDDn cycle end-to-end |
+| [`framework/08-cascade-radar.md`](framework/08-cascade-radar.md) | L1 version classification and cascade message formats |
+
+### What's new in v0.2.0
+
+**1 - STALE-ADVISORY: a fifth spec state between ACTIVE and STALE**
+
+The previous 4-state model treated all parent spec changes equally: any version increment made a child spec STALE and blocked AI generation. v0.2.0 introduces STALE-ADVISORY for minor parent changes (additive only, no breaking changes). Specs in STALE-ADVISORY remain operational - agents continue to generate, but all output carries a mandatory warning. A fixed timebox (5 business days for L2, 3 for L3) gives spec owners a window to verify impact and re-approve. Only if the timebox expires does the spec degrade to STALE. Major parent changes still go directly to STALE.
+
+**2 - SemVer cascade semantics for L1**
+
+A 4-question checklist in [`framework/08-cascade-radar.md`](framework/08-cascade-radar.md) gives the Design Lead an objective method for classifying every L1 change as patch (no cascade), minor (STALE-ADVISORY), or major (STALE). The cascade message format is typed - `[STALE-ADVISORY]` and `[STALE]` messages have distinct fields so spec owners and CI tooling can parse and act on them reliably.
+
+**3 - Closed Dual-Track with Minimum Viable Spec Checklist**
+
+The original Track A had no hard stop. A spec could cycle through review indefinitely. v0.2.0 defines a maximum of two async review iterations before mandatory live session escalation. Review Gates use a 5-point objective checklist (the Minimum Viable Spec) to replace subjective completeness judgments. Specs that pass 5/5 but have known gaps are promoted to ACTIVE with observations, which become `spec-observation` GitHub Issues - traceable and owned, not invisible.
+
+---
 
 ### Role-Specific Docs
 
@@ -113,7 +130,9 @@ sddn-framework/
 
 ## Status
 
-SDDn v0.1.0 is the **founding release**. The framework is complete and internally consistent. It is published under a **Community RFC** model: read it, use it, and open issues to challenge or extend it. No backward-compatible contract exists yet — v0.1.x may evolve the schema based on community feedback before v1.0.0 locks it.
+SDDn v0.2.0 adds the STALE-ADVISORY state, SemVer cascade semantics, and the closed Dual-Track model with Minimum Viable Spec Checklist. See [CHANGELOG.md](CHANGELOG.md) for the full diff from v0.1.0.
+
+The framework is published under a **Community RFC** model: read it, use it, and open issues to challenge or extend it. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to contribute. No backward-compatible contract exists until v1.0.0 locks the schema.
 
 ---
 

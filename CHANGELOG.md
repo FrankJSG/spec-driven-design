@@ -11,7 +11,45 @@ SDDn uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html) with this i
 
 ---
 
-## [0.1.0] — 2026-05-27
+## [0.2.0] - 2026-05-29
+
+### Added
+
+- STALE-ADVISORY state in Spec Health System (5-state model: DRAFT / ACTIVE / STALE-ADVISORY / STALE / DEPRECATED)
+- SemVer semantics for L1 changes: patch / minor / major classification checklist (4 questions)
+- Cascade Radar with typed message formats: `[STALE-ADVISORY]` vs `[STALE]`
+- Mandatory AI warning message for STALE-ADVISORY specs (required in all agent output)
+- `stale_advisory_since`, `stale_advisory_deadline`, `cascade_reason`, `parent_change_type` metadata fields in all .dsmd templates
+- Minimum Viable Spec (MVS) Checklist - 5 objective criteria for Review Gate passage
+- Discovery timebox table with per-spec-type durations (Timebox 1 and reduced Timebox 2)
+- Maximum 2 async iterations rule in Track A before mandatory live session escalation
+- Live session protocol: reviewer documents, author validates, output goes directly to ACTIVE
+- ACTIVE with observations: specs that pass 5/5 MVS but have known gaps are promoted, gaps become `spec-observation` GitHub Issues
+- L1 Foundation "sufficient" definition for Track A exit (minimum viable L1 for L2 work to begin)
+- Cascade events section in lifecycle document (patch / minor / major effects on GENERATE stage)
+- Universal Base Rule in AI Rules Starter Pack (implicit token whitelist, takes precedence over all other rules)
+- `framework/08-cascade-radar.md` - cascade classification, message formats, and Design Lead responsibilities
+- `CONTRIBUTING.md` - L1 versioning workflow, spec-observation issue format, PR process, RFC model
+
+### Changed
+
+- `framework/05-spec-health-system.md`: 4-state model replaced with 5-state model; cascade rules table updated to distinguish patch/minor/major
+- `framework/04-dual-track-model.md`: closed-loop model with Review Gates, timeboxes, MVS checklist, and live session escalation path
+- `framework/07-lifecycle.md`: GENERATE stage updated with cascade interruption logic; Cascade Events section added
+- `templates/foundation-spec.dsmd`: added stale advisory and cascade metadata fields
+- `templates/behavior-spec.dsmd`: added stale advisory and cascade metadata fields
+- `templates/delivery-spec.dsmd`: added stale advisory and cascade metadata fields
+- `ai-rules-starter-pack/README.md`: Universal Base Rule section added
+
+### Fixed
+
+- Dual-Track Model now has a hard stop preventing infinite discovery cycles (max 2 async iterations + live session)
+- Cascade Radar now distinguishes additive changes (STALE-ADVISORY) from breaking changes (STALE), preventing unnecessary generation blocks
+- Review Gate now uses an objective 5-point checklist instead of subjective completeness criteria
+
+---
+
+## [0.1.0] - 2026-05-27
 
 ### Added
 

@@ -20,11 +20,11 @@ The full lifecycle of any design element governed by SDDn moves through seven st
     ┌────────┐                                          │
     │ REVIEW │                                          │
     └────┬───┘                                          │
-         │  DRAFT → ACTIVE (Review Matrix SLA)          │
+         │  DRAFT → ACTIVE (Review Gate)                │
          ▼                                              │
-    ┌──────────┐                                        │
-    │ GENERATE │                                        │
-    └────┬─────┘                                        │
+    ┌──────────┐  ◀─── STALE-ADVISORY: continues        │
+    │ GENERATE │        with mandatory warning           │
+    └────┬─────┘  ◀─── STALE: blocked until updated     │
          │  AI agent executes from ACTIVE spec          │
          ▼                                              │
     ┌──────────┐                                        │
@@ -133,13 +133,27 @@ In brief:
 
 ### AI generation workflow
 
-1. Agent receives the ACTIVE spec (or a prompt seeded with the Prompt Seed from the spec)
+1. Agent receives the spec (or a prompt seeded with the Prompt Seed from the spec)
 2. Agent resolves the full inheritance chain: L3 → L2 references → L1
-3. Agent reads and applies AI Generation Rules from all layers
-4. Agent confirms all referenced specs are ACTIVE before generating
+3. Agent checks the status of every spec in the chain before generating
+4. Agent reads and applies AI Generation Rules from all layers
 5. Agent produces output: component code, screen layout, flow scaffolding, copy
 6. Agent annotates each generated element with the spec section it satisfies
 7. Agent flags any spec gaps encountered during generation (missing states, ambiguous edge cases)
+
+### Cascade events during GENERATE
+
+A parent spec change can interrupt the GENERATE stage depending on its severity. The agent checks all spec states at the start of every generation task.
+
+| Parent change type | Effect on GENERATE stage |
+|-------------------|--------------------------|
+| patch | No interruption. Generation proceeds normally. |
+| minor | STALE-ADVISORY cascade. Generation proceeds. Agent prepends mandatory warning to all output. |
+| major | STALE cascade. Generation is blocked. Agent returns STALE message and halts. |
+
+**If STALE-ADVISORY during GENERATE:** the team decides whether to accept the warning and proceed, or pause to resolve the spec first. Either choice is valid. The warning is documented in the output so the decision is traceable.
+
+**If STALE during GENERATE:** generation stops. The spec owner must resolve the STALE state (update the spec, re-review, promote to ACTIVE) before generation can resume. In-flight work that has already been generated from the spec should be flagged for re-validation once the spec is back to ACTIVE.
 
 ### Human-in-the-loop
 
@@ -235,6 +249,49 @@ All of the following must be true before shipping:
 ### The feedback loop
 
 EVOLVE feeds back into SPEC. A design system that never evolves is a design system that is being abandoned. The lifecycle is designed to make evolution safe: cascading health states ensure that spec changes propagate correctly, and the review gate ensures that evolution decisions are validated before they affect production generation.
+
+---
+
+## Cascade Events in the Lifecycle
+
+A cascade event is triggered when an L1 Foundation Spec releases a new version. The event type (patch, minor, major) determines how the cascade interrupts - or does not interrupt - the lifecycle for specs that inherit from it.
+
+### patch change
+
+A patch change fixes wording, spelling, or metadata in the L1. It does not alter any token value, principle scope, or rule.
+
+**Effect:** No cascade. All inheriting L2 and L3 specs continue through the lifecycle without interruption. The spec owner may update `inherits_from.last_verified` at next review.
+
+### minor change
+
+A minor change adds new tokens, principles, or rules to the L1 without modifying existing ones.
+
+**Effect:** STALE-ADVISORY cascade to all inheriting L2 specs. L3 specs that reference affected L2s receive a secondary cascade.
+
+- Inheriting L2 specs transition from ACTIVE to STALE-ADVISORY
+- AI agents may continue to generate from STALE-ADVISORY specs
+- All generated output carries the mandatory STALE-ADVISORY warning
+- Spec owners have 5 business days (L2) or 3 business days (L3) to verify impact and re-approve
+- If the timebox expires: spec degrades to STALE, generation is blocked
+
+The lifecycle for in-flight work continues with warnings. Teams may choose to pause and resolve the STALE-ADVISORY before shipping, or proceed and resolve it in the next spec cycle.
+
+### major change
+
+A major change eliminates, renames, or modifies an existing token value, or changes the scope of an existing design principle.
+
+**Effect:** STALE cascade immediately to all inheriting L2 specs. All generation is blocked.
+
+- Inheriting L2 specs transition from ACTIVE to STALE immediately
+- AI agents cannot generate from STALE specs
+- All in-flight Track B work that has not yet shipped must pause
+- Spec owners must update affected sections, increment version, and re-review before resuming
+
+The lifecycle pauses at GENERATE for all affected specs until they are restored to ACTIVE. This is intentional - a major L1 change means the constraints that governed the component have changed, and generated output from the old constraints may be incorrect.
+
+### Cascade classification responsibility
+
+The Design Lead classifies every L1 version change as patch, minor, or major before publishing. The classification checklist and cascade message formats are in [`framework/08-cascade-radar.md`](08-cascade-radar.md). The workflow for L1 maintainers is in [`CONTRIBUTING.md`](../CONTRIBUTING.md).
 
 ---
 

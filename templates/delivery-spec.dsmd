@@ -4,6 +4,10 @@ spec_type: delivery
 layer: L3
 version: 0.1.0
 status: DRAFT
+stale_advisory_since: null
+stale_advisory_deadline: null
+cascade_reason: null
+parent_change_type: null
 owner: [handle]
 contributors: []
 created: [ISO 8601]
